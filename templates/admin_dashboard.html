@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="header">
+        <h2>Admin Dashboard (Gatekeeper Layer)</h2>
+        <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+    </div>
+
+    <div class="content">
+        <div class="card">
+            <h3>Add New Candidate</h3>
+            <form action="/add_candidate" method="POST">
+                <input type="text" name="name" placeholder="Candidate Name" required>
+                <button type="submit">Add Candidate</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>Current Candidates</h3>
+            <table class="candidate-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Current Votes</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in candidates %}
+                    <tr>
+                        <td>{{ c.name }}</td>
+                        <td>{{ c.vote_count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <br>
+            <a href="{{ url_for('results_page') }}" class="btn-view">View Live Results</a>
+        </div>
+    </div>
+</body>
+</html>

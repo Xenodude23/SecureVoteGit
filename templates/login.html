@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Trust Engine</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Roboto+Mono:wght@300&family=Playfair+Display:ital@1&family=Press+Start+2P&display=swap" rel="stylesheet">
+
+    <!-- SCRIPT TO PREVENT INTRO REPLAY ON ERROR -->
+    <script>
+        // If we have already seen the intro in this session, hide it immediately
+        if (sessionStorage.getItem('introPlayed')) {
+            document.addEventListener('DOMContentLoaded', function() {
+                document.getElementById('introOverlay').style.display = 'none';
+                document.getElementById('loginContent').style.opacity = '1';
+            });
+        }
+    </script>
+</head>
+<body>
+
+    <!-- THE LOGIN FORM -->
+    <div id="loginContent" class="auth-container" style="opacity: 0; transition: opacity 0.5s ease;">
+        <h1>🔐 Digital Trust Engine</h1>
+        <p>Secure Voting Platform</p>
+
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <!-- This makes sure errors are seen immediately -->
+                <p class="error" style="opacity: 1 !important;">{{ messages[0] }}</p>
+            {% endif %}
+        {% endwith %}
+
+        <p style="margin-top: 20px;">New student? <a href="{{ url_for('signup') }}">Register Here</a></p>
+    </div>
+
+    <!-- THE INTRO OVERLAY -->
+    <div id="introOverlay" class="intro-overlay">
+
+        <div class="feature-text ft-1" style="font-family: 'Orbitron', sans-serif;">RBAC Security</div>
+        <div class="feature-text ft-2" style="font-family: 'Playfair Display', serif; font-style: italic;">BCrypt Hashing</div>
+        <div class="feature-text ft-3" style="font-family: 'Roboto Mono', monospace;">JWT Tokens</div>
+        <div class="feature-text ft-4" style="font-family: 'Press Start 2P', cursive; font-size: 10px;">Audit Logs</div>
+        <div class="feature-text ft-5" style="font-family: 'Orbitron', sans-serif;">One Vote Only</div>
+        <div class="feature-text ft-6" style="font-family: 'Playfair Display', serif;">Anonymous Ballot</div>
+        <div class="feature-text ft-7" style="font-family: 'Roboto Mono', monospace;">CSRF Protected</div>
+
+        <div class="shape-container">
+            <div class="shape s-top-left"></div>
+            <div class="shape s-top-right"></div>
+            <div class="shape s-mid-left"></div>
+            <div class="shape s-mid-right"></div>
+            <div class="shape s-bottom"></div>
+        </div>
+
+        <div class="logo-final">V</div>
+        <div class="intro-tagline">SECURING DEMOCRACY</div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const overlay = document.getElementById('introOverlay');
+            const loginContent = document.getElementById('loginContent');
+
+            // Check if intro was already played
+            if (sessionStorage.getItem('introPlayed')) {
+                overlay.style.display = 'none';
+                loginContent.style.opacity = '1';
+            } else {
+                // Play intro, then fade out
+                setTimeout(() => {
+                    overlay.style.opacity = '0';
+                    overlay.style.pointerEvents = 'none';
+                    loginContent.style.opacity = '1';
+
+                    // Mark intro as played for this session
+                    sessionStorage.setItem('introPlayed', 'true');
+                }, 6500);
+            }
+        };
+    </script>
+</body>
+</html>

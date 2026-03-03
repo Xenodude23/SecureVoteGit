@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .results-container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+        .result-row {
+            margin-bottom: 30px;
+        }
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .progress-track {
+            background: #e5e7eb;
+            border-radius: 10px;
+            height: 24px;
+            overflow: hidden;
+            position: relative;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 10px;
+            width: 0%; /* Start at 0 */
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-size: 12px;
+        }
+        .total-votes {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 18px;
+            color: #666;
+        }
+    </style>
+</head>
+<body class="fade-in">
+    <div class="results-container">
+        <h1 style="text-align: center; margin-bottom: 40px;">📊 Election Standings</h1>
+
+        {% for c in candidates %}
+        <div class="result-row">
+            <div class="result-header">
+                <span>{{ c.name }}</span>
+                <span>{{ c.vote_count }} Votes</span>
+            </div>
+            <div class="progress-track">
+                <!-- Calculate percentage -->
+                {% set percentage = (c.vote_count / total_votes * 100) if total_votes > 0 else 0 %}
+                <div class="progress-bar" style="width: {{ percentage }}%;">
+                    {{ "%.1f"|format(percentage) }}%
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="total-votes">
+            <p>Total Votes Cast: <strong>{{ total_votes }}</strong></p>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <a href="{{ url_for('logout') }}"><button class="btn-logout">Logout</button></a>
+        </div>
+    </div>
+</body>
+</html>

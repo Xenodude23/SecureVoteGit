@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Election Status</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="auth-container fade-in">
+        <h1>⏳ {{ code }}</h1>
+        <h2>{{ message }}</h2>
+        <p style="margin-top: 20px;">Please return during the scheduled voting hours.</p>
+        <a href="{{ url_for('login') }}" style="margin-top: 20px; display: block;"><button>Back to Login</button></a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cast Your Vote</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="vote-wrapper">
+        <!-- SIDEBAR: Voter ID Card (New Feature) -->
+        <div class="sidebar fade-in">
+            <div class="id-card">
+                <div class="id-card-header">
+                    <h3>Digital Voter ID</h3>
+                </div>
+                <div class="id-card-body">
+                    <div class="avatar-large">👤</div>
+                    <div class="voter-info">
+                        <p class="label">Name</p>
+                        <!-- FIXED: Changed current_user to user -->
+                        <h4>{{ user.username }}</h4>
+
+                        <p class="label">College ID</p>
+                        <!-- FIXED: Changed current_user to user -->
+                        <h4>{{ user.college_id }}</h4>
+
+                        <p class="label">Status</p>
+                        <span class="status-badge {% if has_voted %}voted{% else %}active{% endif %}">
+                            {% if has_voted %}VOTED{% else %}ELIGIBLE{% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="id-card-footer">
+                    Secure Digital Trust Engine
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="vote-container fade-in">
+
+            {% if not has_voted %}
+
+                <div class="vote-header">
+                    <h2>🗳️ The Ballot Box</h2>
+                    <p>Select your preferred candidate below.</p>
+                </div>
+
+                <form id="voteForm" method="POST" action="/vote">
+                    <!-- CSRF Token Hidden Field -->
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <input type="hidden" name="candidate_id" id="selectedCandidateInput" value="">
+
+                    <div class="candidate-grid">
+                        {% for c in candidates %}
+                        <div class="candidate-card" onclick="selectCandidate(this, {{ c.id }})">
+                            <div class="candidate-avatar">👤</div>
+                            <div class="candidate-name">{{ c.name }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <button type="button" id="submitBtn" class="submit-btn" onclick="confirmVote()">
+                        Submit Vote
+                    </button>
+                </form>
+
+            {% else %}
+
+                <!-- SUCCESS STATE: Receipt + Lock -->
+                <div class="success-card fade-in">
+                    <div class="success-icon">🗳️</div>
+                    <h3>Vote Cast Successfully!</h3>
+                    <p>Your vote for <strong>{{ selected_candidate_name }}</strong> has been recorded.</p>
+
+                    <!-- Voter Receipt Feature -->
+                    <div class="receipt-box">
+                        <p>Your Verification Receipt:</p>
+                        <h2>{{ receipt }}</h2>
+                        <p style="font-size: 12px; color: #666;">Save this code as proof of your participation.</p>
+                    </div>
+
+                    <div class="lock-info">
+                        <p>🔒 You have been locked out of further voting to ensure election integrity.</p>
+                    </div>
+
+                    <a href="{{ url_for('results_page') }}" style="text-decoration:none;">
+                        <button type="button" style="background: var(--primary); box-shadow: none; margin-top: 20px;">
+                            View Live Results
+                        </button>
+                    </a>
+                </div>
+
+            {% endif %}
+
+        </div>
+    </div>
+
+    <!-- CONFIRMATION MODAL -->
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal-content">
+            <h3>Confirm Your Vote?</h3>
+            <p>You are voting for:</p>
+            <h2 id="modalCandidateName" style="color: var(--primary); margin: 15px 0;">Candidate Name</h2>
+            <p style="font-size: 13px; color: #ef4444;">⚠️ This action cannot be undone.</p>
+
+            <div class="modal-btn-group">
+                <button type="button" class="btn-cancel" onclick="closeModal()">Cancel</button>
+                <button type="button" class="btn-confirm" onclick="submitVote()">Confirm Vote</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedId = null;
+
+        function selectCandidate(element, id) {
+            document.querySelectorAll('.candidate-card').forEach(card => card.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedId = id;
+            document.getElementById('selectedCandidateInput').value = id;
+
+            const btn = document.getElementById('submitBtn');
+            btn.classList.add('visible');
+            btn.style.display = 'block';
+        }
+
+        function confirmVote() {
+            if (!selectedId) return;
+            const name = document.querySelector('.candidate-card.selected .candidate-name').innerText;
+            document.getElementById('modalCandidateName').innerText = name;
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        function submitVote() {
+            document.getElementById('voteForm').submit();
+        }
+    </script>
+</body>
+</html>
