@@ -1,4 +1,4 @@
-/* --- PREMIUM UI STYLING --- */
+
 :root {
     --primary: #4f46e5;
     --primary-dark: #4338ca;
@@ -22,10 +22,10 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden; /* Prevent scrollbars on background */
+    overflow: hidden;
 }
 
-/* --- Utility Classes --- */
+
 .fade-in {
     animation: fadeIn 0.8s ease-in-out;
 }
@@ -35,7 +35,7 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- Auth Containers (Login/Signup) --- */
+
 .auth-container {
     background: var(--glass);
     padding: 40px 50px;
@@ -108,7 +108,7 @@ button:hover {
     font-weight: 500;
 }
 
-/* --- Voting Page Layout --- */
+
 .vote-container {
     width: 90%;
     max-width: 900px;
@@ -133,7 +133,7 @@ button:hover {
     color: #6b7280;
 }
 
-/* --- Candidate Cards Grid --- */
+
 .candidate-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -158,7 +158,7 @@ button:hover {
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
-/* Selected State */
+
 .candidate-card.selected {
     border-color: var(--primary);
     background: #eef2ff;
@@ -200,13 +200,13 @@ button:hover {
     color: #1f2937;
 }
 
-/* --- Vote Submission --- */
+
 .submit-btn {
     background: var(--success);
     box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
     max-width: 300px;
     margin: 0 auto;
-    display: none; /* Hidden until a candidate is selected */
+    display: none;
 }
 
 .submit-btn.visible {
@@ -218,7 +218,7 @@ button:hover {
     background: #059669;
 }
 
-/* --- Success State --- */
+
 .success-card {
     background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
     border: 2px solid var(--success);
@@ -244,7 +244,7 @@ button:hover {
     color: #047857;
 }
 
-/* --- Modal --- */
+
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -302,7 +302,7 @@ button:hover {
     background: #d1d5db;
 }
 
-/* --- Links --- */
+
 a {
     color: var(--primary);
     text-decoration: none;
@@ -312,7 +312,7 @@ a {
 a:hover {
     text-decoration: underline;
 }
-/* Voter ID Card Sidebar */
+
 .vote-wrapper {
     display: flex;
     width: 100%;
@@ -384,7 +384,7 @@ a:hover {
     color: #666;
 }
 
-/* Receipt Box */
+
 .receipt-box {
     background: #f0f9ff;
     border: 1px dashed var(--primary);
@@ -405,20 +405,18 @@ a:hover {
     margin-top: 15px;
 }
 
-/* Adjust vote container for wrapper */
+
 .vote-container {
     max-width: 700px;
 }
-/* --- INTRO ANIMATION STYLES --- */
 
-/* The Dark Overlay Layer */
 .intro-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: #0a0a12; /* Deep dark blue/black background */
+    background: #0a0a12;
     z-index: 9999;
     display: flex;
     justify-content: center;
@@ -427,7 +425,7 @@ a:hover {
     overflow: hidden;
 }
 
-/* The Floating Background Features */
+
 .feature-text {
     position: absolute;
     color: rgba(255, 255, 255, 0.15); /* Half opacity */
@@ -437,7 +435,7 @@ a:hover {
     z-index: 1;
 }
 
-/* Positioning the features in different places */
+
 .ft-1 { top: 15%; left: 10%; animation-delay: 0.5s; }
 .ft-2 { top: 20%; right: 15%; animation-delay: 1s; font-size: 28px; }
 .ft-3 { top: 70%; left: 20%; animation-delay: 1.5s; }
@@ -449,10 +447,10 @@ a:hover {
 @keyframes featureFade {
     0% { opacity: 0; transform: translateY(20px); }
     50% { opacity: 0.2; }
-    100% { opacity: 0; } /* Fade out as V forms */
+    100% { opacity: 0; }
 }
 
-/* The Moving Shapes */
+
 .shape-container {
     position: relative;
     width: 200px;
@@ -470,8 +468,7 @@ a:hover {
     opacity: 0;
 }
 
-/* Animating shapes to merge from random directions to center */
-/* We use delays to make them appear chaotic at first */
+
 
 .s-top-left {
     top: -100%;
@@ -509,7 +506,7 @@ a:hover {
     }
 }
 
-/* The Final "V" Logo */
+
 .logo-final {
     position: absolute;
     font-family: 'Orbitron', sans-serif;
@@ -521,7 +518,7 @@ a:hover {
     -webkit-text-fill-color: transparent;
     opacity: 0;
     transform: scale(0);
-    animation: revealV 1.5s 3.5s forwards; /* Starts after shapes merge */
+    animation: revealV 1.5s 3.5s forwards;
     z-index: 20;
     text-shadow: 0 0 50px rgba(255, 255, 255, 0.3);
 }
@@ -547,4 +544,273 @@ a:hover {
 
 @keyframes fadeUp {
     to { opacity: 1; bottom: 34%; }
+}
+
+
+.admin-container {
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 0 20px;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #eee;
+}
+
+.admin-header h1 {
+    margin: 0;
+    color: #1f2937;
+    font-size: 28px;
+}
+
+.btn-logout-nav {
+    background: #fee2e2;
+    color: #dc2626;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-logout-nav:hover {
+    background: #dc2626;
+    color: white;
+}
+
+.admin-card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    margin-bottom: 25px;
+}
+
+.admin-card h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.inline-form {
+    display: flex;
+    gap: 15px;
+}
+
+.inline-form input[type="text"] {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+.btn-add {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 0 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.btn-add:hover {
+    background: var(--primary-dark);
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th, .data-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.data-table th {
+    background: #f9fafb;
+    color: #6b7280;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.data-table tr:hover {
+    background: #f9fafb;
+}
+
+.admin-footer {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.btn-view-results {
+    background: #10b981;
+    color: white;
+    padding: 12px 30px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.btn-view-results:hover {
+    background: #059669;
+    transform: translateY(-2px);
+}
+
+
+
+
+.alert-box {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border-left: 5px solid #ffeeba;
+    font-weight: 500;
+}
+
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 400px;
+}
+
+.data-table th, .data-table td {
+    padding: 16px 20px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.data-table th {
+    background-color: #f8fafc;
+    color: #64748b;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.data-table tr:hover {
+    background-color: #f8fafc;
+}
+
+/* Vote Badge */
+.vote-badge {
+    background: #e0e7ff;
+    color: #4338ca;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Delete Button */
+.btn-delete {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.2s;
+}
+
+.btn-delete:hover {
+    background-color: #fecaca;
+}
+
+.text-muted {
+    color: #9ca3af;
+    font-size: 13px;
+    cursor: not-allowed;
+}
+
+/* Adjusting the Add Form */
+.inline-form input[type="text"] {
+    border: 2px solid #e2e8f0;
+    transition: border-color 0.3s;
+}
+
+.inline-form input[type="text"]:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* --- TAB SYSTEM STYLES --- */
+
+.tab-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: #f8fafc;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #64748b;
+    border-radius: 6px;
+    transition: 0.3s;
+}
+
+.tab-btn:hover {
+    background: #e2e8f0;
+    color: #334155;
+}
+
+.tab-btn.active {
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 2px 5px rgba(79, 70, 229, 0.3);
+}
+
+.tab-content {
+    display: none; /* Hidden by default */
+}
+
+.tab-content.active {
+    display: block; /* Show only when active */
+    animation: fadeIn 0.5s ease;
+}
+
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-badge.voted {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-badge.pending {
+    background: #fef3c7;
+    color: #92400e;
 }

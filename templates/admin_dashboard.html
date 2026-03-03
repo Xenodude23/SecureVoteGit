@@ -2,45 +2,208 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="header">
-        <h2>Admin Dashboard (Gatekeeper Layer)</h2>
-        <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
-    </div>
+    <div class="admin-container fade-in">
 
-    <div class="content">
-        <div class="card">
-            <h3>Add New Candidate</h3>
-            <form action="/add_candidate" method="POST">
-                <input type="text" name="name" placeholder="Candidate Name" required>
-                <button type="submit">Add Candidate</button>
-            </form>
+        <!-- Header -->
+        <div class="admin-header">
+            <div>
+                <h1>🛡️ Admin Command Center</h1>
+                <p>Manage election data and monitor system integrity.</p>
+            </div>
+            <a href="{{ url_for('logout') }}" class="btn-logout-nav">Logout</a>
         </div>
 
-        <div class="card">
-            <h3>Current Candidates</h3>
-            <table class="candidate-table">
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Current Votes</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for c in candidates %}
-                    <tr>
-                        <td>{{ c.name }}</td>
-                        <td>{{ c.vote_count }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <br>
-            <a href="{{ url_for('results_page') }}" class="btn-view">View Live Results</a>
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert-box">{{ messages[0] }}</div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Navigation Tabs -->
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('voters')">👥 Registered Users</button>
+            <button class="tab-btn" onclick="switchTab('receipts')">🎫 Vote Receipts</button>
+            <button class="tab-btn" onclick="switchTab('audit')">📜 Audit Trail</button>
         </div>
+
+        <!-- Section 1: Dashboard (Default View) -->
+        <div id="tab-dashboard" class="tab-content active">
+            <div class="admin-card">
+                <h3>➕ Register New Candidate</h3>
+                <form action="/add_candidate" method="POST" class="inline-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <input type="text" name="name" placeholder="Enter Full Name" required>
+                    <button type="submit" class="btn-add">Add</button>
+                </form>
+            </div>
+
+            <div class="admin-card">
+                <h3>Current Standings</h3>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Candidate Name</th>
+                                <th>Votes</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in candidates %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td><strong>{{ c.name }}</strong></td>
+                                <td><span class="vote-badge">{{ c.vote_count }}</span></td>
+                                <td>
+                                    {% if c.vote_count == 0 %}
+                                        <a href="{{ url_for('delete_candidate', candidate_id=c.id) }}" class="btn-delete" onclick="return confirm('Delete {{ c.name }}?')">Remove</a>
+                                    {% else %}
+                                        <span class="text-muted">Locked</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Registered Voters -->
+        <div id="tab-voters" class="tab-content">
+            <div class="admin-card">
+                <h3>Registered Students</h3>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>College ID</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for v in voters %}
+                            <tr>
+                                <td>{{ v.username }}</td>
+                                <td>{{ v.college_id }}</td>
+                                <td>
+                                    {% if v.has_voted %}
+                                        <span class="status-badge voted">VOTED</span>
+                                    {% else %}
+                                        <span class="status-badge pending">ELIGIBLE</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="3" style="text-align:center">No voters registered yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Vote Receipts (Anonymous) -->
+        <div id="tab-receipts" class="tab-content">
+            <div class="admin-card">
+                <h3>Vote Audit Trail (Anonymous)</h3>
+                <p style="font-size: 12px; color: #666; margin-bottom: 15px;">This table proves votes were cast without revealing WHO voted.</p>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Candidate Voted For</th>
+                                <th>Receipt Code</th>
+                                <th>Digital Fingerprint (Hash)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in vote_receipts %}
+                            <tr>
+                                <td>{{ log.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                <td>{{ log.candidate.name }}</td>
+                                <td><code style="background:#f1f5f9; padding:2px 6px; border-radius:4px;">{{ log.receipt_code }}</code></td>
+                                <td style="font-size: 10px; color: #888;">{{ log.vote_hash[:20] }}...</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="4" style="text-align:center">No votes cast yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: System Audit Log -->
+        <div id="tab-audit" class="tab-content">
+            <div class="admin-card">
+                <h3>System Security Log</h3>
+                <div class="table-wrapper">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>User ID</th>
+                                <th>Action</th>
+                                <th>Details</th>
+                                <th>IP Address</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log in audit_logs %}
+                            <tr>
+                                <td>{{ log.timestamp.strftime('%H:%M:%S') }}</td>
+                                <td>{{ log.user_id or 'System' }}</td>
+                                <td>
+                                    {% if "SUCCESS" in log.action %} ✅ {% endif %}
+                                    {% if "FAILED" in log.action or "FRAUD" in log.action %} ❌ {% endif %}
+                                    {{ log.action }}
+                                </td>
+                                <td>{{ log.details }}</td>
+                                <td>{{ log.ip_address }}</td>
+                            </tr>
+                            {% else %}
+                            <tr><td colspan="5" style="text-align:center">No activity recorded yet.</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
     </div>
+
+    <!-- JavaScript for Tab Switching -->
+    <script>
+        function switchTab(tabName) {
+            // Hide all content
+            var contents = document.getElementsByClassName('tab-content');
+            for (var i = 0; i < contents.length; i++) {
+                contents[i].classList.remove('active');
+            }
+
+            // Remove active class from all buttons
+            var buttons = document.getElementsByClassName('tab-btn');
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].classList.remove('active');
+            }
+
+            // Show specific content
+            document.getElementById('tab-' + tabName).classList.add('active');
+
+            // Find the button that triggered the click and make it active
+            event.currentTarget.classList.add('active');
+        }
+    </script>
 </body>
 </html>

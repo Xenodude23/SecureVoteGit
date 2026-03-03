@@ -16,25 +16,25 @@ from functools import wraps
 
 app = Flask(__name__)
 
-# --- CONFIGURATION ---
+
 app.config['SECRET_KEY'] = os.urandom(24)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///voting.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# JWT Config
+
 app.config['JWT_SECRET_KEY'] = os.urandom(24)
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
-app.config['JWT_COOKIE_SECURE'] = False  # Set True in production (HTTPS)
+app.config['JWT_COOKIE_SECURE'] = False
 app.config['JWT_COOKIE_CSRF_PROTECT'] = True
-# CRITICAL FIX: Allow CSRF token to be read from Form Data
+
 app.config['JWT_CSRF_CHECK_FORM'] = True
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 
-# Initialize Extensions
+
 db.init_app(app)
 jwt = JWTManager(app)
 
-# Rate Limiter
+
 limiter = Limiter(
     app=app,
     key_func=get_remote_address,
@@ -42,9 +42,9 @@ limiter = Limiter(
 )
 
 
-# --- CUSTOM DECORATORS ---
 
-# RBAC Decorator
+
+
 def role_required(role_name):
     def wrapper(fn):
         @wraps(fn)
@@ -60,7 +60,7 @@ def role_required(role_name):
     return wrapper
 
 
-# --- HELPER FUNCTIONS ---
+
 
 def sanitize_input(data):
     if isinstance(data, str):
@@ -79,7 +79,7 @@ def log_action(action, details, user_id=None):
     db.session.commit()
 
 
-# --- CONTEXT PROCESSOR ---
+
 @app.context_processor
 def inject_csrf_token():
     from flask import request
@@ -87,9 +87,9 @@ def inject_csrf_token():
     return dict(csrf_token=csrf_token)
 
 
-# --- ROUTES ---
 
-# 1. Login
+
+
 @app.route('/', methods=['GET', 'POST'])
 @limiter.limit("10 per minute")
 def login():
@@ -100,7 +100,7 @@ def login():
         user = User.query.filter_by(username=username).first()
 
         if user and bcrypt.checkpw(password.encode('utf-8'), user.password_hash):
-            # FIX: Convert user.id to string for JWT
+
             access_token = create_access_token(identity=str(user.id))
             response = make_response(redirect(url_for('vote_page' if user.role == 'voter' else 'admin_dashboard')))
             set_access_cookies(response, access_token)
@@ -114,7 +114,7 @@ def login():
     return render_template('login.html')
 
 
-# 2. Sign Up
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -148,16 +148,34 @@ def signup():
     return render_template('signup.html')
 
 
-# 3. Admin Dashboard
+
 @app.route('/admin')
 @jwt_required()
 @role_required('admin')
 def admin_dashboard():
     candidates = Candidate.query.all()
-    return render_template('admin_dashboard.html', candidates=candidates)
 
 
-# 4. Add Candidate
+    voters = User.query.filter_by(role='voter').all()
+
+
+    vote_receipts = VoteLog.query.order_by(VoteLog.timestamp.desc()).all()
+
+
+    audit_logs = AuditLog.query.order_by(AuditLog.timestamp.desc()).all()
+
+    total_votes = sum(c.vote_count for c in candidates)
+
+    return render_template('admin_dashboard.html',
+                           candidates=candidates,
+                           total_votes=total_votes,
+                           voters=voters,
+                           vote_receipts=vote_receipts,
+                           audit_logs=audit_logs
+                           )
+
+
+
 @app.route('/add_candidate', methods=['POST'])
 @jwt_required()
 @role_required('admin')
@@ -171,11 +189,30 @@ def add_candidate():
     return redirect(url_for('admin_dashboard'))
 
 
-# 5. Voting Page (Time Lock Removed)
+
+@app.route('/delete_candidate/<int:candidate_id>')
+@jwt_required()
+@role_required('admin')
+def delete_candidate(candidate_id):
+    candidate = Candidate.query.get(candidate_id)
+
+    if candidate:
+
+        if candidate.vote_count > 0:
+            flash('Cannot delete candidate: Votes have already been cast for this person.')
+        else:
+            db.session.delete(candidate)
+            db.session.commit()
+            log_action("CANDIDATE_DELETED", f"Candidate: {candidate.name}", int(get_jwt_identity()))
+            flash('Candidate removed successfully.')
+
+    return redirect(url_for('admin_dashboard'))
+
+
 @app.route('/vote', methods=['GET', 'POST'])
 @jwt_required()
 def vote_page():
-    # FIX: Convert identity to int
+
     user_id = int(get_jwt_identity())
     user = User.query.get(user_id)
 
@@ -220,7 +257,7 @@ def vote_page():
 
                 log_action("VOTE_CAST", f"Vote recorded. Receipt: {receipt_code}", user_id)
 
-                # FIX: Added 'user=user' to this return statement
+
                 return render_template('vote.html',
                                        candidates=candidates,
                                        has_voted=True,
@@ -239,7 +276,7 @@ def vote_page():
     return render_template('vote.html', candidates=candidates, has_voted=user.has_voted, user=user)
 
 
-# 6. Results
+
 @app.route('/results')
 @jwt_required()
 def results_page():
@@ -248,7 +285,7 @@ def results_page():
     return render_template('results.html', candidates=candidates, total_votes=total_votes)
 
 
-# 7. Logout
+
 @app.route('/logout')
 @jwt_required()
 def logout():
@@ -259,7 +296,7 @@ def logout():
     return response
 
 
-# --- INITIALIZATION ---
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
